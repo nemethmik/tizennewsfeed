@@ -1,3 +1,4 @@
+//@flow
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd. All rights reserved.
  *
@@ -33,22 +34,25 @@
      * @param {Object} elm - The object to be emptied
      * @return {Object} The emptied element
      */
-    function emptyElement(elm) {
-        while (elm.firstChild) {
+    function emptyElement(elm/*:HTMLElement | null */) {
+        if(elm) while (elm.firstChild) {
             elm.removeChild(elm.firstChild);
         }
 
         return elm;
     }
-
+    /*::
+        //let tizen: any; //TizenAPI
+    */
     /**
      * Handles the hardware key events.
      * @private
      * @param {Object} event - The object contains data of key event
      */
-    function keyEventHandler(event) {
+    function keyEventHandler(event/*:{keyName:string}*/) {
         if (event.keyName === "back") {
             try {
+                //$FlowFixMe Tizen has no type definitions, unfortunately
                 tizen.application.getCurrentApplication().exit();
             } catch (ignore) {}
         }
@@ -61,12 +65,13 @@
      * @param {string} textClass - The class to be applied to the text
      * @param {string} textContent - The text string to add
      */
-    function addTextElement(objElm, textClass, textContent) {
+    const addTextElement = (objElm/*:HTMLElement | null*/, textClass, textContent) => {
         var newElm = document.createElement("p");
 
         newElm.className = textClass;
         newElm.appendChild(document.createTextNode(textContent));
-        objElm.appendChild(newElm);
+        if(objElm) objElm.appendChild(newElm);
+        else "objElm is null";
     }
 
     /**
@@ -97,9 +102,10 @@
             objPagenum = document.querySelector("#area-pagenum");
 
         emptyElement(objNews);
-        addTextElement(objNews, "subject", arrayNews[index].title);
+        if(objNews) addTextElement(objNews, "subject", arrayNews[index].title);
         emptyElement(objPagenum);
-        addTextElement(objPagenum, "pagenum", "Page " + (index + 1) + "/" + lengthNews);
+        if(objPagenum) addTextElement(objPagenum, "pagenum", "Page " + (index + 1) + "/" + lengthNews);
+        else throw "No Page Num section defined in HTML"
     }
 
     /**
@@ -131,28 +137,30 @@
 
         xmlhttp.open(XML_METHOD, XML_ADDRESS, false);
         xmlhttp.onreadystatechange = function() {
-            if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-                xmlDoc = xmlhttp.responseXML;
-                dataItem = xmlDoc.getElementsByTagName("item");
+            if(xmlhttp) {
+                if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+                    xmlDoc = xmlhttp.responseXML;
+                    dataItem = xmlDoc.getElementsByTagName("item");
 
-                if (dataItem.length > 0) {
-                    lengthNews = (dataItem.length > NUM_MAX_NEWS) ? NUM_MAX_NEWS : dataItem.length;
-                    for (i = 0; i < lengthNews; i++) {
-                        arrayNews.push({
-                            title: dataItem[i].getElementsByTagName("title")[0].childNodes[0].nodeValue,
-                            link: dataItem[i].getElementsByTagName("link")[0].childNodes[0].nodeValue
-                        });
-                        arrayNews[i].title = trimText(arrayNews[i].title, NUM_MAX_LENGTH_SUBJECT);
+                    if (dataItem.length > 0) {
+                        lengthNews = (dataItem.length > NUM_MAX_NEWS) ? NUM_MAX_NEWS : dataItem.length;
+                        for (i = 0; i < lengthNews; i++) {
+                            arrayNews.push({
+                                title: dataItem[i].getElementsByTagName("title")[0].childNodes[0].nodeValue,
+                                link: dataItem[i].getElementsByTagName("link")[0].childNodes[0].nodeValue
+                            });
+                            arrayNews[i].title = trimText(arrayNews[i].title, NUM_MAX_LENGTH_SUBJECT);
+                        }
+
+                        showNews(indexDisplay);
+                    } else {
+                        addTextElement(objNews, "subject", MSG_ERR_NODATA);
                     }
 
-                    showNews(indexDisplay);
+                    xmlhttp = null;
                 } else {
-                    addTextElement(objNews, "subject", MSG_ERR_NODATA);
+                    addTextElement(objNews, "subject", MSG_ERR_NOTCONNECTED);
                 }
-
-                xmlhttp = null;
-            } else {
-                addTextElement(objNews, "subject", MSG_ERR_NOTCONNECTED);
             }
         };
 
@@ -164,8 +172,10 @@
      * @private
      */
     function setDefaultEvents() {
+        //$FlowFixMe No Tizen definition for this event handler
         document.addEventListener("tizenhwkey", keyEventHandler);
-        document.querySelector("#area-news").addEventListener("click", showNextNews);
+        const an = document.querySelector("#area-news");
+        if(an) an.addEventListener("click", showNextNews);
     }
 
     /**
