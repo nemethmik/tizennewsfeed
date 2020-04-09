@@ -8,6 +8,7 @@ Then I created the github repository, inittialized git in the project folder (cr
 Then I intialized the project with **flow init**, enabled flow type checking in app.js by adding **@flow** to the first line. I used Flow [comment syntax](https://flow.org/en/docs/types/comments/) to preserve executable JS, no Babel or TSC is required.
 
 We badly need flow type definitions from Samsung for the Tizen API, since **flow-typed search tizen** didn't return any results, unfortunately.
+But, the Tizen Web API is excellently documented with [WebIDL](https://docs.tizen.org/application/web/api/latest/device_api/wearable/index.html), and I converted the Base, Application and Package API definitions to Flow definitions, which I made publicly available as [gist](https://gist.github.com/nemethmik/4fc5c4628fc8b2dacd5713c7cff29b46)  The video [How to make and use Flow type definitions for Tizen Web API](https://youtu.be/ouloWh4hvX4) explains the details.
 
 The almost 50-minute accompanying explanation video is [Tizen Web Application Development with Flow Static Type Checking](https://youtu.be/XgKlFopXU0s). 
 
