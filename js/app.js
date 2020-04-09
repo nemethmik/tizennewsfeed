@@ -41,9 +41,6 @@
 
         return elm;
     }
-    /*::
-        //let tizen: any; //TizenAPI
-    */
     /**
      * Handles the hardware key events.
      * @private
@@ -52,7 +49,7 @@
     function keyEventHandler(event/*:{keyName:string}*/) {
         if (event.keyName === "back") {
             try {
-                //$FlowFixMe Tizen has no type definitions, unfortunately
+                //We don't need this any more :) $_FlowFixMe Tizen has no type definitions, unfortunately
                 tizen.application.getCurrentApplication().exit();
             } catch (ignore) {}
         }
